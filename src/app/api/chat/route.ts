@@ -1,16 +1,12 @@
 import { NextResponse } from 'next/server';
 import { HealthCopilotAgent } from '@/lib/agents/health-copilot';
-import { createClient } from '@/lib/supabase/server';
-import { getHealthProfile, getRecentVitals, updateHealthProfile, logVital, logSymptom } from '@/lib/supabase/actions';
+import { getHealthProfile, getRecentVitals, updateHealthProfile, logVital, logSymptom } from '@/lib/firebase/actions';
 
 export async function POST(req: Request) {
   try {
-    const { message, history } = await req.json();
+    const { message, history, userId } = await req.json();
     
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -19,9 +15,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'AI API Key not configured' }, { status: 500 });
     }
 
-    // 1. Fetch Context
-    const profile = await getHealthProfile(user.id);
-    const recentVitals = await getRecentVitals(user.id);
+    // 1. Fetch Context from Firestore
+    const profile = await getHealthProfile(userId);
+    const recentVitals = await getRecentVitals(userId);
 
     // 2. Initialize Agent with Context
     const agent = new HealthCopilotAgent(apiKey, { profile, recentVitals });
@@ -38,11 +34,11 @@ export async function POST(req: Request) {
         const payload = JSON.parse(payloadStr);
         
         if (action === 'UPDATE_PROFILE') {
-          await updateHealthProfile(user.id, payload);
+          await updateHealthProfile(userId, payload);
         } else if (action === 'LOG_VITAL') {
-          await logVital(user.id, payload);
+          await logVital(userId, payload);
         } else if (action === 'LOG_SYMPTOM') {
-          await logSymptom(user.id, payload);
+          await logSymptom(userId, payload);
         }
         
         // Remove tag from response shown to user

@@ -31,7 +31,7 @@ export default function DashboardContent({ user, profile, recentVitals }: Dashbo
       <header className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Intelligence Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-1">Welcome back, {user.user_metadata?.full_name || user.email}.</p>
+          <p className="text-sm text-slate-500 mt-1">Welcome back, {user.displayName || user.email}.</p>
         </div>
         <div className="flex gap-3">
             <button className="px-4 py-2.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all shadow-sm">View Raw Logs</button>

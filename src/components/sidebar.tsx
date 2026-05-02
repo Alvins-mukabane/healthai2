@@ -74,7 +74,7 @@ export default function Sidebar({ user, signOutAction }: SidebarProps) {
               </div>
               <div className="overflow-hidden">
                 <p className="text-sm font-black text-slate-900 truncate leading-none mb-1">
-                  {user.user_metadata?.full_name?.split(' ')[0] || 'User'}
+                  {user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'User'}
                 </p>
                 <p className="text-[10px] font-bold text-slate-400 truncate uppercase tracking-tight">Premium Member</p>
               </div>

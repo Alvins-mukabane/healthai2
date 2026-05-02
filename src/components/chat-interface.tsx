@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, Loader2, Mic, Camera, Sparkles, Paperclip } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
-import { User } from '@supabase/supabase-js';
+import { User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { CameraModal } from './CameraModal';
 import { LiveVoiceModal } from './LiveVoiceModal';
@@ -19,7 +19,7 @@ export default function ChatInterface({ user }: { user: User }) {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'model', 
-      content: `Hello ${user.user_metadata?.full_name?.split(' ')[0] || 'there'}! I'm your HealthAI Copilot. How can I help you with your health goals today?` 
+      content: `Hello ${user.displayName?.split(' ')[0] || 'there'}! I'm your HealthAI Copilot. How can I help you with your health goals today?` 
     }
   ]);
   const [input, setInput] = useState('');
@@ -54,7 +54,7 @@ export default function ChatInterface({ user }: { user: User }) {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage, history })
+        body: JSON.stringify({ message: userMessage, history, userId: user.uid })
       });
 
       const data = await response.json();
