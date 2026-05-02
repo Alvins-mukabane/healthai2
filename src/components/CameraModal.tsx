@@ -2,11 +2,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Camera, X, Check } from 'lucide-react';
 
 interface CameraModalProps {
+  isOpen: boolean;
   onCapture: (base64: string, mimeType: string) => void;
   onClose: () => void;
 }
 
-export function CameraModal({ onCapture, onClose }: CameraModalProps) {
+export function CameraModal({ isOpen, onCapture, onClose }: CameraModalProps) {
+  if (!isOpen) return null;
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);

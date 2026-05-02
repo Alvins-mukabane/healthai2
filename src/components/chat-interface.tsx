@@ -188,7 +188,7 @@ export default function ChatInterface({ user }: { user: User }) {
       </div>
 
       <CameraModal isOpen={isCameraOpen} onClose={() => setIsCameraOpen(false)} onCapture={(img) => console.log('captured', img)} />
-      <LiveVoiceModal isOpen={isVoiceOpen} onClose={() => setIsVoiceOpen(false)} />
+      <LiveVoiceModal isOpen={isVoiceOpen} onClose={() => setIsVoiceOpen(false)} agentId="health_copilot" />
     </div>
   );
 }
