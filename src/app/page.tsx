@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { redirect, useRouter } from 'next/navigation';
 import DashboardContent from '@/components/dashboard-content';
 import Sidebar from '@/components/sidebar';
+import LandingPage from '@/components/landing-page';
 import { signOut } from './auth/actions';
 import { getHealthProfile, getRecentVitals } from '@/lib/firebase/actions';
 
@@ -14,27 +14,30 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [vitals, setVitals] = useState<any[]>([]);
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        router.push('/auth/login');
-      } else {
+      if (currentUser) {
         setUser(currentUser);
-        // Fetch data
-        const [prof, recVitals] = await Promise.all([
-          getHealthProfile(currentUser.uid),
-          getRecentVitals(currentUser.uid)
-        ]);
-        setProfile(prof);
-        setVitals(recVitals || []);
+        // Fetch data for authenticated user
+        try {
+          const [prof, recVitals] = await Promise.all([
+            getHealthProfile(currentUser.uid),
+            getRecentVitals(currentUser.uid)
+          ]);
+          setProfile(prof);
+          setVitals(recVitals || []);
+        } catch (e) {
+          console.error("Error fetching user data:", e);
+        }
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   if (loading) {
     return (
@@ -44,8 +47,12 @@ export default function Home() {
     );
   }
 
-  if (!user) return null;
+  // Show Landing Page if not logged in
+  if (!user) {
+    return <LandingPage />;
+  }
 
+  // Show Dashboard if logged in
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
       <Sidebar user={user} signOutAction={signOut} />
