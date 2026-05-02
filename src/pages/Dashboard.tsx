@@ -45,7 +45,17 @@ export function Dashboard() {
             </div>
           )}
           <div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">Intelligence Dashboard</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">Intelligence Dashboard</h1>
+              <div className="flex gap-1.5">
+                <span className="px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[9px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-900/30">
+                  FHIR Ready
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-[9px] font-black uppercase tracking-widest border border-purple-100 dark:border-purple-900/30">
+                  A2A Active
+                </span>
+              </div>
+            </div>
             <p className="text-sm text-gray-500 mt-1">Welcome back, {profile?.name}.</p>
           </div>
         </div>

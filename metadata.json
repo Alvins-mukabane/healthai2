@@ -1,6 +1,6 @@
 {
-  "name": "HealthAI Copilot",
-  "description": "Your AI Health Copilot for Everyday Life. Tracks basic vitals, provides insights, and offers a chat-first interface for health intelligence.",
+  "name": "HealthAI Orchestrator",
+  "description": "A high-performance wellness intelligence platform. Transmutes multi-wearable biometric data into proactive health strategies using generative AI and real-time voice guidance.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": []
 }
