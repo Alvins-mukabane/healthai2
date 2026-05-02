@@ -1,0 +1,6 @@
+{
+  "name": "HealthAI Copilot",
+  "description": "Your AI Health Copilot for Everyday Life. Tracks basic vitals, provides insights, and offers a chat-first interface for health intelligence.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": []
+}

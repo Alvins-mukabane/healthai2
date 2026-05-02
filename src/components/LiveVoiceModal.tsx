@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ai } from '@/lib/gemini';
+import { ai } from '../lib/gemini';
 import { LiveServerMessage, Modality } from '@google/genai';
 import { Mic, MicOff, X, Activity, Loader2 } from 'lucide-react';
-import { pcmEncode, pcmDecode } from '@/lib/audio-utils';
-import { useHealth } from '@/store/HealthStore';
+import { pcmEncode, pcmDecode } from '../lib/audio-utils';
+import { useHealth } from '../store/HealthStore';
 
 interface LiveVoiceModalProps {
-  isOpen: boolean;
   onClose: () => void;
   agentId: string;
 }
 
-export function LiveVoiceModal({ isOpen, onClose, agentId }: LiveVoiceModalProps) {
-  if (!isOpen) return null;
+export function LiveVoiceModal({ onClose, agentId }: LiveVoiceModalProps) {
   const { generateContextString } = useHealth();
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
@@ -145,7 +143,7 @@ export function LiveVoiceModal({ isOpen, onClose, agentId }: LiveVoiceModalProps
         audioCtx.resume();
     }
     const buffer = audioCtx.createBuffer(1, audioData.length, 16000);
-    buffer.copyToChannel(audioData as any, 0);
+    buffer.copyToChannel(audioData, 0);
 
     const source = audioCtx.createBufferSource();
     source.buffer = buffer;

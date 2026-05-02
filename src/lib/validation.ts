@@ -28,6 +28,11 @@ export const HealthProfileSchema = z.object({
   height: z.number().min(0).max(300),
   conditions: z.array(z.string()).default([]),
   consentGiven: z.boolean().default(false),
+  avatarUrl: z.string().optional(),
+  dailyGoals: z.object({
+    steps: z.number().optional().default(10000),
+    water: z.number().optional().default(2000),
+  }).optional().default({ steps: 10000, water: 2000 }),
 });
 
 export type VitalsData = z.infer<typeof VitalsDataSchema>;
