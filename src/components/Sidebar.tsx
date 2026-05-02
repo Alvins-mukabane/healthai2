@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, MessageSquare, PlusCircle, LayoutDashboard, Settings, Moon, Sun } from 'lucide-react';
+import { Activity, MessageSquare, PlusCircle, LayoutDashboard, Settings, Moon, Sun, Mic } from 'lucide-react';
 import { cn } from '../lib/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { useHealth } from '../store/HealthStore';
+import { LiveVoiceModal } from './LiveVoiceModal';
 
 const navItems = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -14,6 +15,7 @@ const navItems = [
 export function Sidebar() {
   const location = useLocation();
   const { isDarkMode, toggleDarkMode, profile } = useHealth();
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
 
   return (
     <div className="w-64 border-r border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col h-full sticky top-0 shrink-0 transition-colors">
@@ -45,6 +47,14 @@ export function Sidebar() {
             </Link>
           );
         })}
+        
+        <button
+          onClick={() => setShowVoiceModal(true)}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10"
+        >
+          <Mic size={18} />
+          Live Voice Copilot
+        </button>
       </nav>
       <div className="p-4 mx-4 mb-4 flex items-center justify-between border border-gray-100 dark:border-zinc-800 rounded-2xl">
         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Appearance</span>
@@ -83,6 +93,13 @@ export function Sidebar() {
             Orchestrator: Active
         </div>
       </div>
+
+      {showVoiceModal && (
+        <LiveVoiceModal 
+          onClose={() => setShowVoiceModal(false)} 
+          agentId="General" 
+        />
+      )}
     </div>
   );
 }

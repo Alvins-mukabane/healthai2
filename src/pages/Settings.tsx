@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useHealth } from '../store/HealthStore';
-import { Activity, Smartphone, Watch, Plus, Check, Loader2, Heart, Terminal as TerminalIcon, ShieldCheck, FileText, User, Camera } from 'lucide-react';
+import { Activity, Smartphone, Watch, Plus, Check, Loader2, Heart, Terminal as TerminalIcon, ShieldCheck, FileText, User, Camera as CameraIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { CameraModal } from '../components/CameraModal';
 
 type Wearable = 'apple_healthkit' | 'google_fit' | 'samsung_health' | 'fitbit';
 
@@ -17,6 +18,7 @@ export function Settings() {
   const [connecting, setConnecting] = useState<Wearable | null>(null);
   const [connected, setConnected] = useState<Wearable[]>(['google_fit']);
   const [syncState, setSyncState] = useState<Record<string, { status: 'idle' | 'syncing' | 'success' | 'error', message?: string }>>({});
+  const [showCamera, setShowCamera] = useState(false);
   
   // Terminal State
   const [terminalHistory, setTerminalHistory] = useState<string[]>(['HealthAI Terminal v1.2', 'Type "help" for commands.']);
@@ -118,7 +120,7 @@ export function Settings() {
            </div>
            
            <div className="flex items-center gap-6">
-             <div className="relative">
+             <div className="relative group">
                {profile?.avatarUrl ? (
                  <img src={profile.avatarUrl} alt="Avatar" className="w-20 h-20 rounded-2xl object-cover shadow-sm bg-gray-100 dark:bg-zinc-800" />
                ) : (
@@ -126,24 +128,45 @@ export function Settings() {
                    <User size={32} className="text-gray-400" />
                  </div>
                )}
-               <label className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-1.5 rounded-xl cursor-pointer hover:bg-blue-700 shadow-sm border-2 border-white dark:border-zinc-950 transition-colors">
-                  <Camera size={14} />
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && profile) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setProfile({ ...profile, avatarUrl: reader.result as string });
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-               </label>
+               <div className="absolute -bottom-2 -right-2 flex gap-1">
+                 <button 
+                  onClick={() => setShowCamera(true)}
+                  className="bg-purple-600 text-white p-1.5 rounded-xl cursor-pointer hover:bg-purple-700 shadow-sm border-2 border-white dark:border-zinc-950 transition-colors"
+                  title="Take Photo"
+                 >
+                    <CameraIcon size={14} />
+                 </button>
+                 <label className="bg-blue-600 text-white p-1.5 rounded-xl cursor-pointer hover:bg-blue-700 shadow-sm border-2 border-white dark:border-zinc-950 transition-colors" title="Upload Photo">
+                    <Plus size={14} />
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file && profile) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setProfile({ ...profile, avatarUrl: reader.result as string });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                 </label>
+               </div>
+               
+               {showCamera && (
+                 <CameraModal 
+                   onClose={() => setShowCamera(false)}
+                   onCapture={(dataUrl) => {
+                     if (profile) {
+                       setProfile({ ...profile, avatarUrl: dataUrl });
+                       setShowCamera(false);
+                     }
+                   }}
+                 />
+               )}
              </div>
              <div className="flex-1 space-y-3">
                <div>
