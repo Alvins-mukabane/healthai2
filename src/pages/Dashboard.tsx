@@ -4,10 +4,11 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format, parseISO } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
-import { X, Sparkles, PlusCircle, MessageSquare, Watch, Settings as SettingsIcon } from 'lucide-react';
+import { X, Sparkles, PlusCircle, MessageSquare, Watch, Settings as SettingsIcon, Mic, RefreshCw } from 'lucide-react';
 
 export function Dashboard() {
-  const { profile, vitals, sleep, dashboardPreferences, updateDashboardPreference, dailyProgress } = useHealth();
+  const { profile, vitals, sleep, dashboardPreferences, updateDashboardPreference, dailyProgress, syncWearableData, syncHistory } = useHealth();
+  const [isSyncing, setIsSyncing] = useState(false);
   const [guideDismissed, setGuideDismissed] = useState(() => localStorage.getItem('health_guide_dismissed') === 'true');
   const [showSettings, setShowSettings] = useState(false);
 
@@ -32,6 +33,18 @@ export function Dashboard() {
   }, [sleep]);
 
   const recentVitals = [...vitals].sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+  const recentSync = syncHistory[0];
+
+  const handleQuickSync = async () => {
+    setIsSyncing(true);
+    try {
+      await syncWearableData('google_fit'); // Default for quick sync demo
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <div className="w-full flex-1 flex flex-col gap-6 animate-in fade-in duration-500 h-full">
@@ -87,8 +100,18 @@ export function Dashboard() {
             >
                <SettingsIcon size={18} />
             </button>
-            <button className="px-4 py-2 text-xs font-bold text-gray-500 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors shadow-sm">View Raw Logs</button>
-            <button className="px-4 py-2 text-xs font-bold text-white bg-gray-900 rounded-xl hover:bg-black transition-colors shadow-sm">Generate Report</button>
+            <button className="px-4 py-2 text-xs font-bold text-gray-500 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors shadow-sm uppercase tracking-wider">View Raw Logs</button>
+            <button 
+              onClick={handleQuickSync}
+              disabled={isSyncing}
+              className={cn(
+                "px-4 py-2 text-xs font-bold text-white rounded-xl transition-all shadow-sm flex items-center gap-2 uppercase tracking-wider",
+                isSyncing ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              )}
+            >
+              {isSyncing ? <RefreshCw size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+              {isSyncing ? "Syncing..." : "Quick Sync"}
+            </button>
             
             {showSettings && (
               <div className="absolute top-12 right-0 w-64 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl shadow-xl z-50 p-4 animate-in fade-in slide-in-from-top-2">
@@ -336,8 +359,39 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="w-[400px] flex flex-col shrink-0 min-h-0">
-          <div className="glass-card p-6 rounded-3xl flex flex-col h-full overflow-hidden">
+        <div className="w-[400px] flex flex-col shrink-0 min-h-0 gap-6">
+          <div className="glass-card p-6 rounded-3xl flex flex-col shrink-0">
+             <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-widest">Interop Status</h2>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+             </div>
+             <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-2xl border border-gray-100 dark:border-zinc-800">
+                   <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
+                         <RefreshCw size={14} />
+                      </div>
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Last FHIR Sync</span>
+                   </div>
+                   <span className="text-[10px] font-bold text-gray-500 uppercase">{recentSync ? format(parseISO(recentSync.timestamp), 'HH:mm') : 'None'}</span>
+                </div>
+                <Link to="/copilot" className="flex items-center justify-between p-3 bg-purple-500/5 hover:bg-purple-500/10 transition-colors dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-900/20 group">
+                   <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg group-hover:scale-110 transition-transform">
+                         <Mic size={14} />
+                      </div>
+                      <span className="text-xs font-medium text-purple-900 dark:text-purple-100">Live Voice Copilot</span>
+                   </div>
+                   <div className="flex gap-0.5">
+                      <div className="w-1 h-3 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-1 h-3 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-1 h-3 bg-purple-400 rounded-full animate-bounce"></div>
+                   </div>
+                </Link>
+             </div>
+          </div>
+
+          <div className="glass-card p-6 rounded-3xl flex flex-col flex-1 overflow-hidden">
             <div className="flex justify-between items-center mb-6 shrink-0">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Insight Feed</h2>
               <span className="text-[10px] bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 font-medium">v1.2 Canonical</span>

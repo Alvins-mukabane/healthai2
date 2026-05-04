@@ -113,4 +113,5 @@ export const LOINC = {
   BODY_WEIGHT: '29463-7',
   BODY_HEIGHT: '8302-2',
   STEP_COUNT: '55423-8', // Step count per day
+  BMI: '39156-5',
 };

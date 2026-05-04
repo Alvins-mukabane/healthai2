@@ -77,12 +77,23 @@ export function Copilot() {
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const suggestedPrompts: Record<string, string[]> = {
+    symptom_agent: ["Why am I tired?", "Analyze my heart rate trends", "Muscle fatigue after workouts"],
+    nutrition_agent: ["Analyze my calorie intake", "Optimization for longevity", "Hydration consistency"],
+    fitness_agent: ["Recovery score analysis", "Overtraining risk?", "Active minutes trend"],
+    risk_agent: ["Biometric baseline deviations", "Longevity risk forecast", "HRV stability check"],
+  };
+
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
   const handleAgentChange = (newAgentId: string) => {
     setActiveAgentId(newAgentId);
+  };
+
+  const handleSuggestedPrompt = (prompt: string) => {
+    setInput(prompt);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -243,6 +254,18 @@ export function Copilot() {
         </div>
 
         <div className="p-4 bg-white dark:bg-zinc-950 border-t border-gray-100 dark:border-zinc-800 shrink-0">
+          <div className="flex gap-2 mb-3 overflow-x-auto pb-2 hide-scrollbar">
+            {(suggestedPrompts[activeAgentId] || []).map((prompt, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleSuggestedPrompt(prompt)}
+                className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-[10px] font-bold rounded-xl border border-gray-200 dark:border-zinc-800 transition-all whitespace-nowrap uppercase tracking-wider"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
           <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
             {selectedImage && (
               <div className="relative w-16 h-16 ml-2 rounded-lg overflow-hidden border border-gray-200 shadow-sm">

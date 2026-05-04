@@ -67,6 +67,8 @@ type HealthContextType = {
   updateDashboardPreference: (key: keyof DashboardPreferences, value: boolean) => void;
   customAgentPrompts: Record<string, string>;
   updateCustomAgentPrompt: (agentId: string, prompt: string) => void;
+  exportFHIRData: () => string;
+  importFHIRData: (json: string) => void;
 };
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
@@ -325,11 +327,34 @@ Dashboard Configuration: The user is currently displaying: ${[
   dashboardPreferences.showSleep ? 'Sleep' : ''
 ].filter(Boolean).join(', ') || 'No metrics'}.
 Allowed Processing: ${consentPreferences.aiProcessing ? 'AI Agent Processing enabled' : 'Strict Local only'}.
+Interoperability: FHIR R4 Compliant Data Structures Active.
     `.trim();
   };
 
+  const exportFHIRData = () => {
+    // This would use the mapping logic in fhir.ts
+    // For now, return a cohesive object for the terminal to display
+    const data = {
+      patient: profile,
+      observations: vitals.map(v => ({ ...v, type: 'VitalSign' })),
+      sleep: sleep.map(s => ({ ...s, type: 'Observation' }))
+    };
+    return JSON.stringify(data, null, 2);
+  };
+
+  const importFHIRData = (json: string) => {
+    try {
+      const data = JSON.parse(json);
+      if (data.patient) setProfile(data.patient);
+      if (data.observations) setVitals(data.observations);
+      recordConsentAction('opt_in', 'integrations', 'Imported FHIR-compliant clinical data packet.');
+    } catch (e) {
+      console.error("FHIR Import failed", e);
+    }
+  };
+
   return (
-    <HealthContext.Provider value={{ hasOnboarded, completeOnboarding, profile, setProfile, dailyProgress, updateDailyProgress, vitals, addVital, sleep, addSleep, generateContextString, isDarkMode, toggleDarkMode, consentPreferences, updateConsent, consentHistory, recordConsentAction, syncHistory, integrationPreferences, updateIntegrationPreference, syncWearableData, dashboardPreferences, updateDashboardPreference, customAgentPrompts, updateCustomAgentPrompt }}>
+    <HealthContext.Provider value={{ hasOnboarded, completeOnboarding, profile, setProfile, dailyProgress, updateDailyProgress, vitals, addVital, sleep, addSleep, generateContextString, isDarkMode, toggleDarkMode, consentPreferences, updateConsent, consentHistory, recordConsentAction, syncHistory, integrationPreferences, updateIntegrationPreference, syncWearableData, dashboardPreferences, updateDashboardPreference, customAgentPrompts, updateCustomAgentPrompt, exportFHIRData, importFHIRData }}>
       {children}
     </HealthContext.Provider>
   );

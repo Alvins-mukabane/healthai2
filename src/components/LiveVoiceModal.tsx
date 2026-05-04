@@ -171,15 +171,30 @@ export function LiveVoiceModal({ onClose, agentId }: LiveVoiceModalProps) {
         </button>
 
         <div className="mb-12 mt-6 flex flex-col items-center">
-            <div className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-1000 ${isConnected ? 'bg-blue-600/20 shadow-[0_0_40px_rgba(37,99,235,0.3)] animate-pulse' : 'bg-zinc-800'}`}>
+            <div className={`w-32 h-32 rounded-full flex items-center justify-center relative transition-all duration-1000 ${isConnected ? 'bg-blue-600/10 shadow-[0_0_60px_rgba(37,99,235,0.2)]' : 'bg-zinc-800'}`}>
+                {isConnected && !isMuted && (
+                   <div className="absolute inset-0 flex items-center justify-center gap-1.5 px-6">
+                      {[...Array(8)].map((_, i) => (
+                        <div 
+                          key={i}
+                          className="w-1.5 bg-blue-500 rounded-full animate-voice-wave"
+                          style={{ 
+                            height: '20%',
+                            animationDelay: `${i * 0.1}s`,
+                            animationDuration: `${0.5 + Math.random()}s`
+                          }}
+                        />
+                      ))}
+                   </div>
+                )}
                 {isConnecting ? (
                    <Loader2 className="animate-spin text-blue-500" size={48} />
                 ) : (
-                   <Activity size={48} className={isConnected && !isMuted ? "text-blue-500" : "text-zinc-600"} />
+                   <Activity size={48} className={isConnected && !isMuted ? "text-blue-500/30" : "text-zinc-600"} />
                 )}
             </div>
-            <h2 className="text-white font-bold text-xl mt-8">Voice Copilot</h2>
-            <p className="text-zinc-400 text-sm mt-2">{isConnecting ? 'Connecting to intelligence...' : (isConnected ? 'Listening...' : 'Disconnected')}</p>
+            <h2 className="text-white font-bold text-xl mt-8 tracking-tight">Health Orchestrator</h2>
+            <p className="text-zinc-400 text-sm mt-3 font-medium">{isConnecting ? 'Connecting to intelligence...' : (isConnected ? (isMuted ? 'Microphone Muted' : 'Listening for health queries...') : 'Disconnected')}</p>
         </div>
 
         <div className="w-full max-h-32 overflow-y-auto mb-8 px-4 text-center">

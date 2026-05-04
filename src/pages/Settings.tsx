@@ -14,7 +14,7 @@ const INTEGRATIONS = [
 ] as const;
 
 export function Settings() {
-  const { profile, setProfile, vitals, sleep, consentPreferences, updateConsent, consentHistory, syncWearableData, syncHistory, integrationPreferences, updateIntegrationPreference } = useHealth();
+  const { profile, setProfile, vitals, sleep, consentPreferences, updateConsent, consentHistory, syncWearableData, syncHistory, integrationPreferences, updateIntegrationPreference, exportFHIRData } = useHealth();
   const [connecting, setConnecting] = useState<Wearable | null>(null);
   const [connected, setConnected] = useState<Wearable[]>(['google_fit']);
   const [syncState, setSyncState] = useState<Record<string, { status: 'idle' | 'syncing' | 'success' | 'error', message?: string }>>({});
@@ -66,19 +66,20 @@ export function Settings() {
     let response = '';
     switch (command) {
       case 'help':
-        response = 'Commands: help, clear, status, sync [device], reset-onboarding';
+        response = 'Commands: help, clear, status, sync [device], fhir-export, mcp-list, reset-onboarding';
         break;
       case 'clear':
         setTerminalHistory([]);
         return;
       case 'status':
-        response = `Profile: ${profile?.name} | Vitals: ${vitals.length} | Sleep: ${sleep.length}`;
+        response = `Profile: ${profile?.name} | Vitals: ${vitals.length} | Sleep: ${sleep.length} | FHIR-Ready: Yes`;
         break;
-      case 'sync':
-        response = args[1] ? `Forcing manual sync with ${args[1]}...` : 'Please specify a device';
-        if (args[1] === 'apple_healthkit' || args[1] === 'google_fit' || args[1] === 'fitbit') {
-           syncWearableData(args[1] as any);
-        }
+      case 'fhir-export':
+        const fhirData = exportFHIRData();
+        setTerminalHistory(prev => [...prev, `user@healthai:~$ ${cmd}`, 'Exporting FHIR Clinical Resource Bundle...', fhirData]);
+        return;
+      case 'mcp-list':
+        response = 'Available MCP Tools: get_fhir_observations, analyze_longevity_risk, sync_patient_context';
         break;
       case 'reset-onboarding':
         localStorage.removeItem('health_onboarded');

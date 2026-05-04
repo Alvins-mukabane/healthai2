@@ -85,3 +85,26 @@ export const MCP_TOOLS = [
     }
   }
 ];
+
+/**
+ * SHARP (Session, Health, Auth, Role, Patient) Context Interface
+ * Essential for secure interoperability in Prompt Opinion.
+ */
+export interface SHARPContext {
+  sessionId: string;
+  patientId: string;
+  fhirToken?: string;
+  userRole: 'clinician' | 'patient' | 'researcher';
+  organizationId: string;
+}
+
+/**
+ * A2A Message Schema
+ */
+export interface A2AMessage {
+  sender: string;
+  recipient: string;
+  payload: any;
+  context: SHARPContext;
+  protocol: 'COIN' | 'interop-v1';
+}

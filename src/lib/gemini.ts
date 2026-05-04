@@ -17,7 +17,13 @@ export async function chatWithHealthCopilot(
   try {
     const agent = (SPECIALIST_AGENTS as any)[agentId] || SPECIALIST_AGENTS.Symptom;
     const basePrompt = customPromptOverride || agent.systemPrompt;
-    const systemInstruction = basePrompt + "\nIf the user asks to change or customize what metrics are shown on the dashboard (e.g., hide sleep, show heart rate), you MUST call the updateDashboard function to do it for them, and confirm the action.";
+    const systemInstruction = 
+      basePrompt + 
+      "\n\nGENERAL ARCHITECTURAL RULES:\n" +
+      "1. Tone: Professional, clinical yet accessible, and objective.\n" +
+      "2. Interoperability: When discussing data, use FHIR terminology where applicable (e.g., 'Observations', 'Vitals').\n" +
+      "3. Safety: Always include standard medical disclaimers for high-risk analysis.\n" +
+      "4. Tools: If the user asks to change or customize what metrics are shown on the dashboard (e.g., hide sleep, show heart rate), you MUST call the updateDashboard function to do it for them, and confirm the action.";
 
     let userParts: any[] = [{ text: message }];
     
@@ -37,7 +43,7 @@ export async function chatWithHealthCopilot(
       },
       {
         role: "model",
-        parts: [{ text: "Understood." }]
+        parts: [{ text: "Understood. I have access to the user context and will apply the specialized agent reasoning." }]
       },
       ...history,
       {
@@ -47,7 +53,7 @@ export async function chatWithHealthCopilot(
     ] as any;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-1.5-pro",
       contents,
       config: {
         systemInstruction: systemInstruction,
